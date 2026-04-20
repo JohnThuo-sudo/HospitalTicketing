@@ -6,7 +6,6 @@ import Register from './pages/Register';
 
 function AppRouter() {
   const location = useLocation();
-  console.log(location);
   const pageVariants = {
     initial: {
       opacity: 0,
