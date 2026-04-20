@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import { motion } from "framer-motion";
 
 const RegisterGenderPayment = ({ formData, setFormData, error, setError }) => {
   const [gender, setGender] = useState(formData.gender || "");
@@ -17,7 +18,9 @@ const RegisterGenderPayment = ({ formData, setFormData, error, setError }) => {
 
   const focus = (element) => {
     if (element.current) {
-      element.current.focus();
+      const target =
+        element.current.querySelector?.("input") || element.current;
+      target?.focus?.();
     }
   };
 
@@ -34,15 +37,10 @@ const RegisterGenderPayment = ({ formData, setFormData, error, setError }) => {
     }, 2000);
   };
 
-  useEffect(() => {
-    setGender(formData.gender || "");
-    setPaymentMethod(formData.paymentMethod || "");
-  }, [formData.gender, formData.paymentMethod]);
-
   const handleGenderChange = (e) => {
     const target = e.target;
     setGender(target.value);
-    setLocalError(""); 
+    setLocalError("");
     setFormData((prevData) => ({
       ...prevData,
       gender: target.value,
@@ -59,21 +57,62 @@ const RegisterGenderPayment = ({ formData, setFormData, error, setError }) => {
     }));
   };
 
+  const containerVariants = {
+    initial: { opacity: 0, y: 20 },
+    animate: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.35, ease: "easeOut", staggerChildren: 0.12 },
+    },
+    exit: {
+      opacity: 0,
+      y: -20,
+      transition: { duration: 0.25, ease: "easeIn" },
+    },
+  };
+
+  const itemVariants = {
+    initial: { opacity: 0, y: 15 },
+    animate: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.3, ease: "easeOut" },
+    },
+    exit: { opacity: 0, y: -10, transition: { duration: 0.2, ease: "easeIn" } },
+  };
+
   return (
-    <div className="flex flex-col gap-5 w-[70%] mx-auto">
-      <label className="text-2xl font-semibold" htmlFor="gender">
+    <motion.div
+      className="flex flex-col gap-5 w-[70%] mx-auto"
+      variants={containerVariants}
+      initial="initial"
+      animate="animate"
+      exit="exit"
+    >
+      <motion.label
+        className="text-2xl font-semibold"
+        htmlFor="gender"
+        variants={itemVariants}
+      >
         Gender
-      </label>
+      </motion.label>
       {error || localError ? (
-        <span className="text-red-500">{error || localError}</span>
+        <motion.span className="text-red-500" variants={itemVariants}>
+          {error || localError}
+        </motion.span>
       ) : null}
-      <div className="flex gap-5" ref={genderRef}>
-        <label
+      <motion.div
+        className="flex gap-5"
+        ref={genderRef}
+        variants={itemVariants}
+      >
+        <motion.label
           htmlFor="gender-male"
           className={
             "px-8 py-2 rounded-md border-2 border-green-600 cursor-pointer" +
             (gender === "Male" ? " bg-green-600 text-white" : "")
           }
+          variants={itemVariants}
         >
           <input
             type="radio"
@@ -83,13 +122,14 @@ const RegisterGenderPayment = ({ formData, setFormData, error, setError }) => {
             onChange={handleGenderChange}
           />
           Male
-        </label>
-        <label
+        </motion.label>
+        <motion.label
           htmlFor="gender-female"
           className={
             "px-8 py-2 rounded-md border-2 border-green-600 cursor-pointer" +
             (gender === "Female" ? " bg-green-600 text-white" : "")
           }
+          variants={itemVariants}
         >
           <input
             type="radio"
@@ -99,20 +139,29 @@ const RegisterGenderPayment = ({ formData, setFormData, error, setError }) => {
             onChange={handleGenderChange}
           />
           Female
-        </label>
-      </div>
+        </motion.label>
+      </motion.div>
 
-      <label className="text-2xl font-semibold mt-5" htmlFor="paymentMethod">
+      <motion.label
+        className="text-2xl font-semibold mt-5"
+        htmlFor="paymentMethod"
+        variants={itemVariants}
+      >
         Payment Method
-      </label>
+      </motion.label>
 
-      <div className="flex gap-5" ref={paymentRef}>
-        <label
+      <motion.div
+        className="flex gap-5"
+        ref={paymentRef}
+        variants={itemVariants}
+      >
+        <motion.label
           className={
             "px-8 py-2 rounded-md border-2 border-green-600 cursor-pointer" +
             (paymentMethod === "M-Pesa" ? " bg-green-600 text-white" : "")
           }
           htmlFor="paymentMethod-mpesa"
+          variants={itemVariants}
         >
           <input
             type="radio"
@@ -122,14 +171,15 @@ const RegisterGenderPayment = ({ formData, setFormData, error, setError }) => {
             onChange={handlePaymentMethodChange}
           />
           M-Pesa
-        </label>
+        </motion.label>
 
-        <label
+        <motion.label
           className={
             "px-8 py-2 rounded-md border-2 border-green-600 cursor-pointer" +
             (paymentMethod === "Cash" ? " bg-green-600 text-white" : "")
           }
           htmlFor="paymentMethod-cash"
+          variants={itemVariants}
         >
           <input
             type="radio"
@@ -139,14 +189,15 @@ const RegisterGenderPayment = ({ formData, setFormData, error, setError }) => {
             onChange={handlePaymentMethodChange}
           />
           Cash
-        </label>
+        </motion.label>
 
-        <label
+        <motion.label
           className={
             "px-8 py-2 rounded-md border-2 border-green-600 cursor-pointer" +
             (paymentMethod === "Card" ? " bg-green-600 text-white" : "")
           }
           htmlFor="paymentMethod-card"
+          variants={itemVariants}
         >
           <input
             type="radio"
@@ -156,8 +207,8 @@ const RegisterGenderPayment = ({ formData, setFormData, error, setError }) => {
             onChange={handlePaymentMethodChange}
           />
           Card
-        </label>
-      </div>
+        </motion.label>
+      </motion.div>
       {paymentMethod === "M-Pesa" ? (
         <div className="flex flex-col gap-2 mt-4">
           <label className="font-semibold text-2xl" htmlFor="mpesaNumber">
@@ -205,7 +256,7 @@ const RegisterGenderPayment = ({ formData, setFormData, error, setError }) => {
           </p>
         </div>
       ) : null}
-    </div>
+    </motion.div>
   );
 };
 

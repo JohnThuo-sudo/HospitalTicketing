@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import Input from "../../components/Input";
+import { motion } from "framer-motion";
 
 const RegisterPhoneDOB = ({ formData, setFormData, error, setError }) => {
   const [phone, setPhone] = useState(formData.phone || "");
@@ -16,7 +17,9 @@ const RegisterPhoneDOB = ({ formData, setFormData, error, setError }) => {
 
   const focus = (element) => {
     if (element.current) {
-      element.current.focus();
+      const target =
+        element.current.querySelector?.("input") || element.current;
+      target?.focus?.();
     }
   };
 
@@ -32,11 +35,6 @@ const RegisterPhoneDOB = ({ formData, setFormData, error, setError }) => {
       setLocalError("");
     }, 2000);
   };
-
-  useEffect(() => {
-    setPhone(formData.phone || "");
-    setDOB(formData.DOB || "");
-  }, [formData.phone, formData.DOB]);
 
   const handlePhoneChange = (e) => {
     const target = e.target;
@@ -60,8 +58,49 @@ const RegisterPhoneDOB = ({ formData, setFormData, error, setError }) => {
     }));
   };
 
+  const componentVariants = {
+    initial: {
+      opacity: 0,
+      x: -200,
+    },
+    animate: {
+      opacity: 1,
+      x: 0,
+      transition: {
+        duration: 0.4,
+        ease: "easeOut",
+        staggerChildren: 0.15,
+      },
+    },
+    exit: {
+      opacity: 0,
+      x: 20,
+    },
+  };
+
+  const item = {
+    initial: {
+      opacity: 0,
+      x: 20,
+    },
+    animate: {
+      opacity: 1,
+      x: 0,
+      transition: {
+        duration: 0.4,
+        ease: "easeInOut",
+      },
+    },
+  };
+
   return (
-    <div className="flex flex-col gap-5 w-[70%] mx-auto">
+    <motion.div
+      className="flex flex-col gap-5 w-[70%] mx-auto"
+      variants={componentVariants}
+      initial="initial"
+      animate="animate"
+      exit="exit"
+    >
       <h2 className="text-2xl font-bold mb-3">Fill Contact Details</h2>
       {error || localError ? (
         <span className="text-red-500">{error || localError}</span>
@@ -73,6 +112,7 @@ const RegisterPhoneDOB = ({ formData, setFormData, error, setError }) => {
         onChange={handlePhoneChange}
         Required
         ref={phoneRef}
+        variants={item}
       />
 
       <Input
@@ -82,8 +122,9 @@ const RegisterPhoneDOB = ({ formData, setFormData, error, setError }) => {
         onChange={handleDOBChange}
         required
         ref={dobRef}
+        variants={item}
       />
-    </div>
+    </motion.div>
   );
 };
 
