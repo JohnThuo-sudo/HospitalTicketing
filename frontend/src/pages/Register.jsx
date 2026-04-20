@@ -3,6 +3,7 @@ import RegisterNames from "./patient/RegisterNames";
 import RegisterPhoneDOB from "./patient/RegisterPhoneDOB";
 import RegisterGenderPayment from "./patient/RegisterGenderPayment";
 import RegisterConfirm from "./patient/RegisterConfirm";
+import { AnimatePresence, motion, stagger } from "framer-motion";
 
 const Register = () => {
   const steps = [
@@ -43,63 +44,103 @@ const Register = () => {
     cardNumber: "",
   });
 
-  const nextStep = () => {
-    if (step < steps.length) {
-      setStep(step + 1);
-    }
-    if (step === steps.length) {
+  const validateStep = () => {
+    const handleError = (err) => {
+      setError(err);
+      setTimeout(() => setError(""), 2000);
+    };
 
-      // Handle form submission here, e.g., send formData to the server
-      console.log("Form submitted:", formData);
+    if (step === 1) {
+      if (!formData.firstName) {
+        handleError("First name is required");
+        return false;
+      }
+      if (!formData.surName) {
+        handleError("Sur name is required");
+        return false;
+      }
+      if (!formData.lastName) {
+        handleError("Last name is required");
+        return false;
+      }
     }
+
+    if (step === 2) {
+      if (!formData.phone) {
+        handleError("Phone number is required");
+        return false;
+      }
+      if (!formData.DOB) {
+        handleError("Date of birth is required");
+        return false;
+      }
+    }
+
+    if (step === 3) {
+      if (!formData.gender) {
+        handleError("Gender is required");
+        return false;
+      }
+      if (!formData.paymentMethod) {
+        handleError("Payment method is required");
+        return false;
+      }
+    }
+
+    return true;
+  };
+
+  const nextStep = () => {
+    if (!validateStep()) {
+      return;
+    }
+
     if (step === 3) {
       setFormData((prevData) => ({
         ...prevData,
         fullName: `${prevData.firstName} ${prevData.surName} ${prevData.lastName}`,
       }));
     }
-    const handleError = (err) => {
-      setError(err);
-      setTimeout(() => setError(""), 2000);
-    };
-    if (
-      step === 1 &&
-      (formData.firstName === "" ||
-        formData.surName === "" ||
-        formData.lastName === "")
-    ) {
-      formData.firstName === ""
-        ? handleError("First name is required")
-        : formData.surName === ""
-          ? handleError("Sur name is required")
-          : formData.lastName === ""
-            ? handleError("Last name is required")
-            : handleError("");
-      console.log(error);
-      setStep(1);
-    } else if (step === 2 && (formData.phone === "" || formData.DOB === "")) {
-      formData.phone === ""
-        ? handleError("Phone number is required")
-        : formData.DOB === ""
-          ? handleError("Date of birth is required")
-          : handleError("");
-      setStep(2);
-    } else if (
-      step === 3 &&
-      (formData.gender === "" || formData.paymentMethod === "")
-    ) {
-      formData.gender === ""
-        ? handleError("Gender is required")
-        : formData.paymentMethod === ""
-          ? handleError("Payment method is required")
-          : handleError("");
-      setStep(3);
+
+    if (step < steps.length) {
+      setStep(step + 1);
+      return;
+    }
+
+    if (step === steps.length) {
+      console.log("Form submitted:", formData);
     }
   };
+
   const prevStep = () => {
     if (step > 1) {
       setStep(step - 1);
     }
+  };
+
+  const CurrentComponent = steps.find((s) => s.id === step)?.component;
+
+  const stepVariants = {
+    initial: {
+      opacity: 0,
+      y: 20,
+    },
+    animate: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 0.35,
+        ease: "easeOut",
+      },
+    },
+    exit: {
+      opacity: 0,
+      y: -20,
+      transition: {
+        duration: 0.25,
+        ease: "easeIn",
+      },
+    },
   };
 
   return (
@@ -114,31 +155,25 @@ const Register = () => {
             Register for a Ticket
           </h1>
         </div>
-        {step === 1 && (
-          <RegisterNames
-            formData={formData}
-            setFormData={setFormData}
-            error={error}
-            setError={setError}
-          />
-        )}
-        {step === 2 && (
-          <RegisterPhoneDOB
-            formData={formData}
-            setFormData={setFormData}
-            error={error}
-            setError={setError}
-          />
-        )}
-        {step === 3 && (
-          <RegisterGenderPayment
-            formData={formData}
-            setFormData={setFormData}
-            error={error}
-            setError={setError}
-          />
-        )}
-        {step === 4 && <RegisterConfirm formData={formData} />}
+        <AnimatePresence mode="wait">
+          {CurrentComponent && (
+            <motion.div
+              key={step}
+              variants={stepVariants}
+              initial="initial"
+              animate="animate"
+              exit="exit"
+              className="flex flex-col gap-5"
+            >
+              <CurrentComponent
+                formData={formData}
+                setFormData={setFormData}
+                error={error}
+                setError={setError}
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
         <div className="w-[70%] mx-auto flex justify-end gap-2">
           {step > 1 && (
             <button
