@@ -4,6 +4,7 @@ import { Routes, Route, useLocation } from "react-router-dom";
 import { AnimatePresence, easeInOut, motion } from "framer-motion";
 import Register from "./pages/Register";
 import StaffLogin from "./pages/StaffLogin";
+import Dashboard from "./components/Dashboard";
 
 function AppRouter() {
   const location = useLocation();
@@ -24,7 +25,7 @@ function AppRouter() {
       opacity: 0,
       y: -20,
       transition: {
-        duration: 0.8,
+        duration: 0.65,
         ease: "easeIn",
       },
     },
@@ -72,7 +73,24 @@ function AppRouter() {
             </motion.div>
           }
         />
+                <Route
+          path="/staff/doctor/id?"
+          element={
+            <motion.div
+              variants={pageVariants}
+              initial="initial"
+              animate="animate"
+              exit="exit"
+            >
+              <Dashboard />
+            </motion.div>
+          }
+        >
+          <Route></Route>
+        </Route>
+      
       </Routes>
+      
     </AnimatePresence>
   );
 }
