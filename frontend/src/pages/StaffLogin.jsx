@@ -198,7 +198,7 @@ const StaffLogin = () => {
                 variants={item}
               />
 
-            <Link to="/staff/doctor">
+            <Link to="/staff/triage/:id">
               {isRegister && (
                 <Input
                   ref={confirmPasswordRef}

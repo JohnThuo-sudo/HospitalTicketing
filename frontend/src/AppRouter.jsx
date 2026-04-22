@@ -5,6 +5,7 @@ import { AnimatePresence, easeInOut, motion } from "framer-motion";
 import Register from "./pages/Register";
 import StaffLogin from "./pages/StaffLogin";
 import Dashboard from "./components/Dashboard";
+import Ticket from "./pages/triage/Ticket";
 
 function AppRouter() {
   const location = useLocation();
@@ -73,8 +74,8 @@ function AppRouter() {
             </motion.div>
           }
         />
-                <Route
-          path="/staff/doctor/id?"
+        <Route
+          path="/staff/triage/:id"
           element={
             <motion.div
               variants={pageVariants}
@@ -85,12 +86,24 @@ function AppRouter() {
               <Dashboard />
             </motion.div>
           }
-        >
-          <Route></Route>
-        </Route>
-      
+        />
+        <Route path="/staff/triage/:id/ticket/:id" element={<Ticket />} />
+
+        <Route
+          path="/staff/doctor/:id"
+          element={
+            <motion.div
+              variants={pageVariants}
+              initial="initial"
+              animate="animate"
+              exit="exit"
+            >
+              <Dashboard />
+            </motion.div>
+          }
+        />
+        <Route path="/staff/doctor/:id/ticket/:id" element={<Ticket />} />
       </Routes>
-      
     </AnimatePresence>
   );
 }

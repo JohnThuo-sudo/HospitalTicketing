@@ -9,8 +9,22 @@ const Dashboard = () => {
   const [activeFilter, setActiveFilter] = useState("today");
   const filterRef = useRef(null);
 
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (filterRef.current && !filterRef.current.contains(event.target)) {
+        setIsSelectOn(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   const location = useLocation().pathname;
+  console.log(location)
 
   const tickets = [
     {
@@ -18,33 +32,42 @@ const Dashboard = () => {
       ticket_number: 1,
       patient: "John Doe",
       sent_at: Date.now(),
-      path: `${location}/ticket?1`,
-      opened: true,
+      path: `${location}/ticket/:id`,
+      opened: false,
     },
     {
       id: 101,
       ticket_number: 2,
       patient: "John Doe",
       sent_at: Date.now() - 86400000, // yesterday
-      path: `${location}/ticket?2`,
-      opened: false,
+      path: `${location}/ticket/:id`,
+      opened: true,
     },
     {
       id: 102,
       ticket_number: 3,
       patient: "John Doe",
       sent_at: Date.now() - 7 * 86400000,
-      path: `${location}/ticket?3`,
-      opened: false,
+      path: "/ticket?1",
+      opened: true,
     },
     {
       id: 103,
       ticket_number: 4,
       patient: "John Doe",
       sent_at: Date.now() - 30 * 86400000,
-      path: `${location}/ticket?4`,
-      opened: false
+      path: "/ticket?1",
+      opened: true,
     },
+    {
+      id: 104,
+      ticket_number: 5,
+      patient: "John Doe",
+      sent_at: Date.now() - 30 * 86400000,
+      path: "/ticket?1",
+      opened: true,
+    },
+
   ];
 
   const filters = [
@@ -116,7 +139,9 @@ const Dashboard = () => {
         <div className="relative w-[35%] md:w-[20%]">
           <div
             ref={filterRef}
-            onClick={() => setIsSelectOn((prev) => !prev)}
+            onClick={(e) => {
+              setIsSelectOn((prev) => !prev);
+            }}
             className="flex justify-between items-center bg-gray-500/50 px-3 py-2 font-semibold rounded-2xl cursor-pointer z-20 relative"
           >
             <span>{currentFilterName}</span>
