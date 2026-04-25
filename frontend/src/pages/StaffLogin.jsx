@@ -1,20 +1,27 @@
 import { AnimatePresence, motion } from "framer-motion";
 import React, { useRef, useState } from "react";
 import Input from "../components/Input";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { loginUser, registerStaff } from "../api/authApi";
+import { useAuth } from "../context/AuthContext";
+import { useNotification } from "../context/NotificationContext";
+import LoadingSpinner from "../components/LoadingSpinner";
 
 const StaffLogin = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isRegister, setRegister] = useState(false);
-  const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const emailRef = useRef(null);
   const passwordRef = useRef(null);
   const confirmPasswordRef = useRef(null);
 
-  // Animations
+  const navigate = useNavigate();
+  const { login } = useAuth();
+  const { showSuccess, showError } = useNotification();
+
   const container = {
     initial: { opacity: 0, y: 20 },
     animate: {
@@ -47,7 +54,7 @@ const StaffLogin = () => {
     animate: {
       opacity: 1,
       x: 0,
-      transition: { duration: 0.35, ease: "easeOut" }, // ❗ removed delay (causes lag on toggle)
+      transition: { duration: 0.35, ease: "easeOut" },
     },
     exit: {
       opacity: 0,
@@ -56,34 +63,28 @@ const StaffLogin = () => {
     },
   };
 
-  // ✅ Fixed error handler
   const handleError = (message, ref) => {
-    setError(message);
+    showError(message);
     if (ref?.current) {
       ref.current.focus();
     }
     setTimeout(() => {
-      setError("");
-    }, 2000);
+      // Error notification will auto-dismiss
+    }, 3000);
   };
 
-  // ❗ Do NOT validate on every keystroke — just update state
   const handleEmailChange = (e) => {
     setEmail(e.target.value);
-    setError("");
   };
 
   const handlePasswordChange = (e) => {
     setPassword(e.target.value);
-    setError("");
   };
 
   const handleConfirmPasswordChange = (e) => {
     setConfirmPassword(e.target.value);
-    setError("");
   };
 
-  // ✅ Central validation (correct approach)
   const validate = () => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
     const passwordRegex =
@@ -100,12 +101,9 @@ const StaffLogin = () => {
     }
 
     if (!passwordRegex.test(password.trim())) {
-      handleError("Weak Password");
-      return false;
-    }
-
-    if (password.length < 6) {
-      handleError("Password must be at least 6 characters", passwordRef);
+      handleError(
+        "Password must be at least 8 characters and include uppercase, lowercase, number, and symbol",
+      );
       return false;
     }
 
@@ -114,19 +112,50 @@ const StaffLogin = () => {
       return false;
     }
 
-    setError("");
     return true;
   };
 
-  const handleSubmit = (e) => {
+  const routeByRole = (role) => {
+    if (role === "manager") {
+      return "/hospital/admin";
+    }
+    if (role === "triage") {
+      return "/staff/triage";
+    }
+    if (role === "doctor") {
+      return "/staff/doctor";
+    }
+    if (role === "pharmacist") {
+      return "/staff/pharmacy";
+    }
+    return "/staff";
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!validate()) return;
 
-    if (isRegister) {
-      console.log("Register:", { email, password });
-    } else {
-      console.log("Login:", { email, password });
+    setIsLoading(true);
+
+    try {
+      if (isRegister) {
+        const data = await registerStaff({ email, password });
+        login(data);
+        showSuccess("Registration successful! Welcome to the system.");
+        navigate(routeByRole(data.user.role));
+      } else {
+        const data = await loginUser({ email, password });
+        login(data);
+        showSuccess(`Welcome back, ${data.user.full_name}!`);
+        navigate(routeByRole(data.user.role));
+      }
+    } catch (err) {
+      const errorMessage =
+        err.response?.data?.message || err.message || "Authentication failed";
+      showError(errorMessage);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -138,7 +167,6 @@ const StaffLogin = () => {
       animate="animate"
     >
       <div className="bg-green-100/50 w-[66%] md:w-[50%] lg:w-[40%] p-8 rounded-sm backdrop-blur-3xl flex flex-col gap-6 pl-18">
-        {/* Toggle */}
         <div className="flex gap-2 items-baseline">
           <div
             className={
@@ -150,9 +178,7 @@ const StaffLogin = () => {
           >
             Login
           </div>
-
           <span className="w-px h-8 bg-gray-500"></span>
-
           <div
             className={
               isRegister
@@ -165,17 +191,14 @@ const StaffLogin = () => {
           </div>
         </div>
 
-        {/* Animated Form Switch */}
         <AnimatePresence mode="wait">
           <motion.div
-            key={isRegister ? "register" : "login"} // ❗ VERY IMPORTANT for animation switch
+            key={isRegister ? "register" : "login"}
             variants={componentVariants}
             initial="initial"
             animate="animate"
             exit="exit"
           >
-            {error && <span className="text-red-500">{error}</span>}
-
             <form onSubmit={handleSubmit} className="flex flex-col gap-4">
               <Input
                 ref={emailRef}
@@ -198,29 +221,48 @@ const StaffLogin = () => {
                 variants={item}
               />
 
-            <Link to="/staff/triage/:id">
               {isRegister && (
-                <Input
-                  ref={confirmPasswordRef}
-                  className="w-[90%]"
-                  label="Confirm Password"
-                  placeholder="*******************"
-                  value={confirmPassword}
-                  onChange={handleConfirmPasswordChange}
-                  type="password"
-                  variants={item}
-                />
+                <>
+                  <Input
+                    ref={confirmPasswordRef}
+                    className="w-[90%]"
+                    label="Confirm Password"
+                    placeholder="*******************"
+                    value={confirmPassword}
+                    onChange={handleConfirmPasswordChange}
+                    type="password"
+                    variants={item}
+                  />
+                  <div>
+                    <p className="text-red-700">
+                      Your email must be registered by admin before you can
+                      complete registration.
+                    </p>
+                  </div>
+                </>
               )}
 
               <motion.button
                 type="submit"
-                className="mr-auto bg-blue-500 w-[90%] h-10 rounded-md font-semibold shadow-lg shadow-blue-500/50 hover:bg-blue-600 transition-colors duration-300 cursor-pointer text-xl mt-6"
+                disabled={isLoading}
+                className={`mr-auto bg-blue-500 w-[90%] h-10 rounded-md font-semibold shadow-lg shadow-blue-500/50 hover:bg-blue-600 transition-colors duration-300 cursor-pointer text-xl mt-6 ${
+                  isLoading ? "opacity-50 cursor-not-allowed" : ""
+                }`}
                 variants={item}
               >
-                {isRegister ? "Register" : "Login"}
-              </motion.button>            
-            </Link>
-
+                {isLoading ? (
+                  <div className="flex items-center justify-center">
+                    <LoadingSpinner size="sm" />
+                    <span className="ml-2">
+                      {isRegister ? "Registering..." : "Logging in..."}
+                    </span>
+                  </div>
+                ) : isRegister ? (
+                  "Register"
+                ) : (
+                  "Login"
+                )}
+              </motion.button>
             </form>
           </motion.div>
         </AnimatePresence>

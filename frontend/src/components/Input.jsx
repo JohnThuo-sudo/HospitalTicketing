@@ -31,6 +31,7 @@ const Input = forwardRef((props, ref) => {
         id={label}
         value={value}
         onChange={onChange}
+        
       />
     </motion.div>
   );

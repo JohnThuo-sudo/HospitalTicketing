@@ -1,7 +1,7 @@
 import React from "react";
 import { motion } from "framer-motion";
 
-const RegisterConfirm = ({ formData }) => {
+const RegisterConfirm = ({ formData, error }) => {
   const containerVariants = {
     initial: { opacity: 0, y: 20 },
     animate: {
@@ -37,6 +37,12 @@ const RegisterConfirm = ({ formData }) => {
       <motion.h2 className="text-2xl font-bold mb-3" variants={itemVariants}>
         Confirm Your Details
       </motion.h2>
+
+      <h2 className="text-2xl font-bold mb-3">Filling Patient Names</h2>
+      {error ? (
+        <span className="text-red-500">{error || localError}</span>
+      ) : null}
+
       <motion.p className="text-lg" variants={itemVariants}>
         Please review your details before submitting your registration. If
         everything looks correct, click the submit button to complete your

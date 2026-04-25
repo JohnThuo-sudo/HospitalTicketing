@@ -73,33 +73,60 @@ const Ticket = () => {
         </motion.div>
 
         {/* Patient Card */}
-        <motion.main
-          initial={{ opacity: 0, y: 15 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="bg-white rounded-3xl shadow-xl p-8 border border-gray-200"
-        >
-          <h2 className="font-semibold text-2xl mb-6 text-gray-700">
-            Contact Information
-          </h2>
+        <AnimatePresence mode="wait">
+          <motion.main
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="bg-white rounded-3xl shadow-xl p-8 border border-gray-200"
+          >
+            <div>
+              <h2 className="font-semibold text-2xl mb-6 text-gray-700">
+                Contact Information
+              </h2>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {patientFields.map((item, index) => (
-              <div key={index} className="flex flex-col gap-2">
-                <label className="font-medium text-gray-600">
-                  {item.label}
-                </label>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {patientFields.map((item, index) => (
+                  <div key={index} className="flex flex-col gap-2">
+                    <label className="font-medium text-gray-600">
+                      {item.label}
+                    </label>
 
-                <input
-                  type="text"
-                  value={item.value}
-                  disabled
-                  className="bg-gray-100 border border-gray-300 rounded-xl p-3 text-gray-700 outline-none"
-                />
+                    <input
+                      type="text"
+                      value={item.value}
+                      disabled
+                      className="bg-gray-100 border border-gray-300 rounded-xl p-3 text-gray-700 outline-none"
+                    />
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
-        </motion.main>
+            </div>
+
+            <div>
+              <h2 className="font-semibold text-2xl mb-6 text-gray-700">
+                Triage Info
+              </h2>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {tria.map((item, index) => (
+                  <div key={index} className="flex flex-col gap-2">
+                    <label className="font-medium text-gray-600">
+                      {item.label}
+                    </label>
+
+                    <input
+                      type="text"
+                      value={item.value}
+                      disabled
+                      className="bg-gray-100 border border-gray-300 rounded-xl p-3 text-gray-700 outline-none"
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+          </motion.main>
+        </AnimatePresence>
 
         {/* Action Buttons */}
         <div className="flex gap-4 flex-wrap">

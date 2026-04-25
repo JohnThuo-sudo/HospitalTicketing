@@ -123,6 +123,7 @@ const RegisterPhoneDOB = ({ formData, setFormData, error, setError }) => {
         required
         ref={dobRef}
         variants={item}
+        max={new Date().toISOString().split("T")[0]} // Disable future dates
       />
     </motion.div>
   );

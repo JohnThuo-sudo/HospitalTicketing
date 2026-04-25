@@ -23,6 +23,14 @@ const Home = () => {
         delayChildren: 0.2,
       },
     },
+    exit: {
+      opacity: 0,
+      y: -25,
+      transition: {
+        duration: 0.3,
+        ease: "easeInOut",
+      },
+    },
   };
 
   const item = {
@@ -43,6 +51,7 @@ const Home = () => {
         variants={container}
         initial="closed"
         animate="open"
+        exit="exit"
       >
         <motion.div variants={item}>
           <h1 className="text-4xl font-bold text-gray-800 mb-4">
@@ -98,18 +107,16 @@ const Home = () => {
             whileTap={{ scale: 0.95 }}
           >
             Get a Ticket
-          </motion.button>        
+          </motion.button>
         </Link>
-
       </motion.div>
       <Link to="/staff">
-      <div className="w-full flex justify-center mb-8 mt-8">
-        <div className="w-[95%] bg-amber-300 h-16 flex items-center justify-center text-2xl font-bold cursor-pointer rounded-lg shadow-2xl shadow-black/50 hover:bg-amber-300/90 transition-colors duration-300 hover:shadow-2xl hover:shadow-amber-800/70">
-          Staff
+        <div className="w-full flex justify-center mb-8 mt-8">
+          <div className="w-[95%] bg-amber-300 h-16 flex items-center justify-center text-2xl font-bold cursor-pointer rounded-lg shadow-2xl shadow-black/50 hover:bg-amber-300/90 transition-colors duration-300 hover:shadow-2xl hover:shadow-amber-800/70">
+            Staff
+          </div>
         </div>
-      </div>      
       </Link>
-
     </>
   );
 };

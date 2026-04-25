@@ -1,20 +1,37 @@
 import React, { useEffect, useRef, useState } from "react";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 
 const RegisterGenderPayment = ({ formData, setFormData, error, setError }) => {
   const [gender, setGender] = useState(formData.gender || "");
   const [paymentMethod, setPaymentMethod] = useState(
     formData.paymentMethod || "",
   );
+  const [mpesaNumber, setMpesaNumber] = useState(formData.mpesaNumber || "");
+  const [cardNumber, setCardNumber] = useState(formData.cardNumber || "");
+  const [insuranceNumber, setInsuranceNumber] = useState(
+    formData.insuranceNumber || "",
+  );
   const [localError, setLocalError] = useState("");
   const genderRef = useRef(null);
   const paymentRef = useRef(null);
+  const mpesaRef = useRef(null);
+  const cardRef = useRef(null);
+  const insuranceRef = useRef(null);
 
   // Sync local state with formData when it changes
   useEffect(() => {
     setGender(formData.gender || "");
     setPaymentMethod(formData.paymentMethod || "");
-  }, [formData.gender, formData.paymentMethod]);
+    setMpesaNumber(formData.mpesaNumber || "");
+    setCardNumber(formData.cardNumber || "");
+    setInsuranceNumber(formData.insuranceNumber || "");
+  }, [
+    formData.gender,
+    formData.paymentMethod,
+    formData.mpesaNumber,
+    formData.cardNumber,
+    formData.insuranceNumber,
+  ]);
 
   const focus = (element) => {
     if (element.current) {
@@ -31,6 +48,12 @@ const RegisterGenderPayment = ({ formData, setFormData, error, setError }) => {
       focus(genderRef);
     } else if (err.toLowerCase().includes("payment")) {
       focus(paymentRef);
+    } else if (err.toLowerCase().includes("mpesa")) {
+      focus(mpesaRef);
+    } else if (err.toLowerCase().includes("card")) {
+      focus(cardRef);
+    } else if (err.toLowerCase().includes("insurance")) {
+      focus(insuranceRef);
     }
     setTimeout(() => {
       setLocalError("");
@@ -54,6 +77,40 @@ const RegisterGenderPayment = ({ formData, setFormData, error, setError }) => {
     setFormData((prevData) => ({
       ...prevData,
       paymentMethod: target.value,
+    }));
+  };
+
+  const handleMpesaChange = (e) => {
+    const target = e.target;
+    const formattedValue = target.value.replace(/\D/g, "").slice(0, 10);
+    target.value = formattedValue;
+    setMpesaNumber(target.value);
+    setLocalError("");
+    setFormData((prevData) => ({
+      ...prevData,
+      mpesaNumber: target.value,
+    }));
+  };
+
+  const handleCardChange = (e) => {
+    const target = e.target;
+    const formattedValue = target.value.replace(/\D/g, "").slice(0, 16);
+    target.value = formattedValue;
+    setCardNumber(target.value);
+    setLocalError("");
+    setFormData((prevData) => ({
+      ...prevData,
+      cardNumber: target.value,
+    }));
+  };
+
+  const handleInsuranceChange = (e) => {
+    const target = e.target;
+    setInsuranceNumber(target.value);
+    setLocalError("");
+    setFormData((prevData) => ({
+      ...prevData,
+      insuranceNumber: target.value,
     }));
   };
 
@@ -140,6 +197,23 @@ const RegisterGenderPayment = ({ formData, setFormData, error, setError }) => {
           />
           Female
         </motion.label>
+        <motion.label
+          htmlFor="gender-other"
+          className={
+            "px-8 py-2 rounded-md border-2 border-green-600 cursor-pointer" +
+            (gender === "Other" ? " bg-green-600 text-white" : "")
+          }
+          variants={itemVariants}
+        >
+          <input
+            type="radio"
+            id="gender-other"
+            name="gender"
+            value="Other"
+            onChange={handleGenderChange}
+          />
+          Other
+        </motion.label>
       </motion.div>
 
       <motion.label
@@ -208,54 +282,130 @@ const RegisterGenderPayment = ({ formData, setFormData, error, setError }) => {
           />
           Card
         </motion.label>
+
+        <motion.label
+          className={
+            "px-8 py-2 rounded-md border-2 border-green-600 cursor-pointer" +
+            (paymentMethod === "Insurance" ? " bg-green-600 text-white" : "")
+          }
+          htmlFor="paymentMethod-insurance"
+          variants={itemVariants}
+        >
+          <input
+            type="radio"
+            id="paymentMethod-insurance"
+            name="paymentMethod"
+            value="Insurance"
+            onChange={handlePaymentMethodChange}
+          />
+          Insurance
+        </motion.label>
       </motion.div>
-      {paymentMethod === "M-Pesa" ? (
-        <div className="flex flex-col gap-2 mt-4">
-          <label className="font-semibold text-2xl" htmlFor="mpesaNumber">
-            M-Pesa Number
-          </label>
-          <input
-            type="text"
-            id="mpesaNumber"
-            placeholder="0700000000"
-            value={formData.mpesaNumber}
-            onChange={(e) =>
-              setFormData((prevData) => ({
-                ...prevData,
-                mpesaNumber: e.target.value,
-              }))
-            }
-            className="border-2 border-green-600 rounded-md py-2 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          />
-        </div>
-      ) : paymentMethod === "Card" ? (
-        <div className="flex flex-col gap-2 mt-4">
-          <label className="font-semibold text-2xl" htmlFor="cardNumber">
-            Card Number
-          </label>
-          <input
-            type="text"
-            id="cardNumber"
-            placeholder="1234 5678 9012 3456"
-            value={formData.cardNumber}
-            onChange={(e) =>
-              setFormData((prevData) => ({
-                ...prevData,
-                cardNumber: e.target.value,
-              }))
-            }
-            className="border-2 border-green-600 rounded-md py-2 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          />
-        </div>
-      ) : paymentMethod === "Cash" ? (
-        <div className="flex flex-col gap-2 mt-4">
-          <p className="text-lg">
-            Please proceed to the cashier to make your payment in cash. Once you
-            have made the payment, you can return here to complete your
-            registration.
-          </p>
-        </div>
-      ) : null}
+
+      {/* Conditional Payment Details */}
+      <AnimatePresence>
+        {paymentMethod === "M-Pesa" && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.3 }}
+            className="w-full"
+          >
+            <motion.label
+              className="text-lg font-semibold block mb-2"
+              variants={itemVariants}
+            >
+              M-Pesa Phone Number
+            </motion.label>
+            <motion.input
+              ref={mpesaRef}
+              type="tel"
+              placeholder="0712345678"
+              value={mpesaNumber}
+              onChange={handleMpesaChange}
+              className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-green-500 focus:outline-none transition-colors"
+              required
+              variants={itemVariants}
+            />
+          </motion.div>
+        )}
+
+        {paymentMethod === "Card" && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.3 }}
+            className="w-full"
+          >
+            <motion.label
+              className="text-lg font-semibold block mb-2"
+              variants={itemVariants}
+            >
+              Card Number
+            </motion.label>
+            <motion.input
+              ref={cardRef}
+              type="text"
+              placeholder="1234567890123456"
+              value={cardNumber}
+              onChange={handleCardChange}
+              className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-green-500 focus:outline-none transition-colors"
+              required
+              variants={itemVariants}
+            />
+          </motion.div>
+        )}
+
+        {paymentMethod === "Insurance" && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.3 }}
+            className="w-full"
+          >
+            <motion.label
+              className="text-lg font-semibold block mb-2"
+              variants={itemVariants}
+            >
+              Insurance Policy Number
+            </motion.label>
+            <motion.input
+              ref={insuranceRef}
+              type="text"
+              placeholder="Enter insurance policy number"
+              value={insuranceNumber}
+              onChange={handleInsuranceChange}
+              className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-green-500 focus:outline-none transition-colors"
+              required
+              variants={itemVariants}
+            />
+          </motion.div>
+        )}
+
+        {paymentMethod === "Cash" && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.3 }}
+            className="w-full"
+          >
+            <motion.div
+              className="bg-blue-50 border border-blue-200 rounded-lg p-4"
+              variants={itemVariants}
+            >
+              <p className="text-blue-800">
+                Please proceed to the cashier to make your payment in cash. Once
+                you have made the payment, you can return here to complete your
+                registration.
+              </p>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 };

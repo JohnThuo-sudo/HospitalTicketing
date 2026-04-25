@@ -1,7 +1,7 @@
 import React from "react";
 import Home from "./pages/Home";
 import { Routes, Route, useLocation } from "react-router-dom";
-import { AnimatePresence, easeInOut, motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import Register from "./pages/Register";
 import StaffLogin from "./pages/StaffLogin";
 import Dashboard from "./components/Dashboard";
